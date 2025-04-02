@@ -1,12 +1,18 @@
 const express = require("express");
-const { verifyUser, saveUserDetails } = require("../controllers/user/userControllers");
+const multer = require("multer");
+const upload = multer();
+const {
+  verifyUser,
+  saveUserDetails,
+  checkUserDetails,
+  getUserProfile,
+} = require("../controllers/user/userControllers");
 
 const router = express.Router();
 
-// Verify OTP and Store User
-router.post("/verify", verifyUser);
-
-// Store Additional User Details
-router.post("/details", saveUserDetails);
+router.post("/verify", verifyUser); // Verify user using idToken + phone number
+router.post("/details", upload.single("user_image"), saveUserDetails);
+router.post("/check-details", checkUserDetails);
+router.post("/get-profile", getUserProfile);
 
 module.exports = router;
