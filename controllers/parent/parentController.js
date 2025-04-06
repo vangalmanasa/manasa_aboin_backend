@@ -106,7 +106,94 @@ const getParentsByUser = async (req, res) => {
   }
 };
 
+const deleteParent = async (req, res) => {
+  const { parent_id } = req.params;
+
+  if (!parent_id) {
+    return res.status(400).json({ success: false, error: "Missing parent_id" });
+  }
+
+  try {
+    const client = await pool.connect();
+    try {
+      const query = `DELETE FROM parent WHERE parent_id = $1 RETURNING *`;
+      const result = await client.query(query, [parent_id]);
+
+      if (result.rowCount === 0) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Parent not found" });
+      }
+
+      return res.status(200).json({ success: true, message: "Parent deleted" });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error("Error in deleteParent:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+const updateParent = async (req, res) => {
+  const { name, phone_number, date_of_birth, gender, relation, home_location } =
+    req.body;
+
+  const { parent_id } = req.params;
+  const imageFile = req.file;
+
+  if (!parent_id) {
+    return res.status(400).json({ success: false, error: "Missing parent_id" });
+  }
+
+  try {
+    const client = await pool.connect();
+    try {
+      const query = `
+          UPDATE parent SET
+            name = $1,
+            phone_number = $2,
+            date_of_birth = $3,
+            gender = $4,
+            relation = $5,
+            home_location = $6,
+            image = COALESCE($7, image)
+          WHERE parent_id = $8
+          RETURNING *
+        `;
+
+      const values = [
+        name,
+        phone_number,
+        date_of_birth || null,
+        gender || null,
+        relation,
+        home_location || null,
+        imageFile ? imageFile.buffer : null,
+        parent_id,
+      ];
+
+      const result = await client.query(query, values);
+
+      if (result.rowCount === 0) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Parent not found" });
+      }
+
+      return res.status(200).json({ success: true, parent: result.rows[0] });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error("Error in updateParent:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 module.exports = {
   createFamilyMember,
   getParentsByUser,
+  deleteParent,
+  updateParent,
 };
