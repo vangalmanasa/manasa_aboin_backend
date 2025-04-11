@@ -1,25 +1,30 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+require("dotenv").config();
+
 const userRoutes = require("./routes/userRoutes");
 const citiesRoutes = require("./routes/serviceCitiesRoutes");
 const parentRoutes = require("./routes/parentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-require("dotenv").config();
+const hospitalServiceRoutes = require("./routes/hospitalServiceRoutes");
+const serviceRequestRoutes = require("./routes/serviceRequestsRoutes");
 
 const app = express();
+
+app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(cors());
 
-// Routes
 app.use("/admin", adminRoutes);
 app.use("/user", userRoutes);
 app.use("/api", citiesRoutes);
 app.use("/parent", parentRoutes);
+app.use("/hospital_service", hospitalServiceRoutes);
+app.use("/service", serviceRequestRoutes);
 
 // Start Server
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
