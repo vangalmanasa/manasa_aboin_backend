@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const {
-  createHospitalService,
+  createHospitalServiceWithServiceRequest,
   getHospitalServiceById,
   updateHospitalService,
   deleteHospitalService,
@@ -10,7 +10,11 @@ const {
 const router = express.Router();
 const upload = multer();
 
-router.post("/hospital-service", upload.array("images"), createHospitalService);
+router.post(
+  "/hospital-service",
+  upload.array("images"),
+  createHospitalServiceWithServiceRequest
+);
 
 router.get("/hospital-service/:id", getHospitalServiceById);
 

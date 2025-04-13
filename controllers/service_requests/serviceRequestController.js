@@ -39,13 +39,25 @@ const createServiceRequest = async (req, res) => {
 const getAllServiceRequests = async (req, res) => {
   try {
     const { userId } = req.params;
-    const result = await pool.query(
-      `SELECT * FROM service_requests WHERE user_id = $1 ORDER BY created_at DESC`,
-      [userId]
-    );
+
+    console.log("📨 Fetching all service requests for user:", userId);
+    const query = `
+        SELECT 
+          sr.*,
+          hb.*
+        FROM service_requests sr
+        LEFT JOIN hospital_service_bookings hb
+          ON sr.service_name = 'hospital_service'
+          AND sr.service_reference_id::INTEGER = hb.hospital_service_id
+        WHERE sr.user_id = $1
+        
+      `;
+
+    const result = await pool.query(query, [userId]);
+
     res.json({ success: true, data: result.rows });
   } catch (err) {
-    console.error("Error in getAllServiceRequests:", err.message);
+    console.error("❌ Error in getAllServiceRequests:", err.message);
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
