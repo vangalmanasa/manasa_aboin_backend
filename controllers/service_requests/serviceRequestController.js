@@ -42,16 +42,18 @@ const getAllServiceRequests = async (req, res) => {
 
     console.log("📨 Fetching all service requests for user:", userId);
     const query = `
-        SELECT 
-          sr.*,
-          hb.*
-        FROM service_requests sr
-        LEFT JOIN hospital_service_bookings hb
-          ON sr.service_name = 'hospital_service'
-          AND sr.service_reference_id::INTEGER = hb.hospital_service_id
-        WHERE sr.user_id = $1
-        
-      `;
+          SELECT 
+            sr.*, 
+            hb.*, 
+            pt.*
+          FROM service_requests sr
+          LEFT JOIN hospital_service_bookings hb
+            ON sr.service_name = 'hospital_service'
+            AND sr.service_reference_id::INTEGER = hb.hospital_service_id
+          LEFT JOIN parent pt
+            ON hb.parent_id = pt.parent_id
+          WHERE sr.user_id = $1
+        `;
 
     const result = await pool.query(query, [userId]);
 

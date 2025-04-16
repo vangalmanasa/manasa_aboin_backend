@@ -4,7 +4,7 @@ const admin = require("../../config/firebase");
 const createHospitalServiceWithServiceRequest = async (req, res) => {
   const client = await pool.connect();
   try {
-    const idToken = String(req.body.user_id); // This is actually the Firebase ID token
+    const idToken = String(req.body.user_id);
     console.log("🔐 Decoding Firebase ID token...");
 
     const decodedToken = await admin.auth().verifyIdToken(idToken);
@@ -22,7 +22,21 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
       cab_type,
       needs_assistant,
       claiming_insurance,
+
+      // Razorpay payment data
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature,
+      amount,
+      currency,
+      payment_method,
     } = req.body;
+
+    // Parse amount from string to float
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount)) {
+      throw new Error("Amount is missing or invalid.");
+    }
 
     const imageFile = req.file;
 
@@ -65,13 +79,13 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
     ]);
 
     if (hospitalResult.rowCount === 0) {
-      throw new Error("Hospital service insert failed.");
+      throw new Error("Failed to insert hospital service booking.");
     }
 
     const hospitalServiceId = hospitalResult.rows[0].hospital_service_id;
-    console.log("✅ Hospital service inserted with ID:", hospitalServiceId);
+    console.log("✅ Hospital service ID:", hospitalServiceId);
 
-    console.log("📨 Inserting service_requests...");
+    console.log("📨 Inserting into service_requests...");
     const serviceRequestQuery = `
         INSERT INTO service_requests (
           user_id,
@@ -79,13 +93,43 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
           service_reference_id,
           payment_status
         ) VALUES ($1, $2, $3, $4)
+        RETURNING request_id
       `;
 
-    await client.query(serviceRequestQuery, [
+    const serviceRequestResult = await client.query(serviceRequestQuery, [
       user_id,
       "hospital_service",
       hospitalServiceId,
-      "pending",
+      "success",
+    ]);
+
+    const request_id = serviceRequestResult.rows[0].request_id;
+
+    console.log("💰 Inserting into payments...");
+    const paymentInsertQuery = `
+        INSERT INTO payments (
+          razorpay_payment_id,
+          razorpay_order_id,
+          razorpay_signature,
+          service_request_id,
+          amount,
+          currency,
+          status,
+          payment_method
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8
+        )
+      `;
+
+    await client.query(paymentInsertQuery, [
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature,
+      request_id,
+      parsedAmount,
+      currency || "INR",
+      "success",
+      payment_method || "razorpay",
     ]);
 
     await client.query("COMMIT");
@@ -93,7 +137,7 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
     console.log("✅ Transaction committed successfully.");
     res.status(201).json({
       success: true,
-      message: "Hospital service & service request created",
+      message: "Booking and payment recorded successfully.",
       hospital_service_id: hospitalServiceId,
     });
   } catch (error) {
@@ -104,7 +148,7 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
     );
     res.status(500).json({
       success: false,
-      error: error.message || "Internal server error",
+      error: error.message || "Internal Server Error",
     });
   } finally {
     client.release();

@@ -3,8 +3,8 @@ const pool = require("../../config/db");
 
 const createFamilyMember = async (req, res) => {
   const {
-    idToken, // user who is adding the family member
-    parentIdToken, // newly verified parent identity
+    idToken,
+    parentIdToken,
     name,
     phone_number,
     date_of_birth,
@@ -108,7 +108,7 @@ const getParentsByUser = async (req, res) => {
 
 const deleteParent = async (req, res) => {
   const { parent_id } = req.params;
-
+  console.log("Deleting parent with ID:", parent_id);
   if (!parent_id) {
     return res.status(400).json({ success: false, error: "Missing parent_id" });
   }
