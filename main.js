@@ -9,6 +9,7 @@ const parentRoutes = require("./routes/parentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const hospitalServiceRoutes = require("./routes/hospitalServiceRoutes");
 const serviceRequestRoutes = require("./routes/serviceRequestsRoutes");
+const propertyCareRoutes = require("./routes/propertyCareRoutes");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/user", userRoutes);
 app.use("/api", citiesRoutes);
 app.use("/parent", parentRoutes);
 app.use("/hospital_service", hospitalServiceRoutes);
+app.use("/property_care", propertyCareRoutes);
 app.use("/service", serviceRequestRoutes);
 
 // Start Server
