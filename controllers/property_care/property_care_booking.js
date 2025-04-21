@@ -18,7 +18,6 @@ const createPropertyCareBookingWithServiceRequest = async (req, res) => {
       email,
       address,
       document_type,
-      document_path,
       property_type,
       survey_no,
       property_status,
@@ -26,36 +25,39 @@ const createPropertyCareBookingWithServiceRequest = async (req, res) => {
       property_location,
       guardian_name,
       guardian_phone,
-      proof_file_path,
     } = req.body;
 
-    const imageFile = req.file;
+    // Handle file uploads
+    const documentImage = req.files?.document_image?.[0]?.buffer || null;
+    const proofFileImage = req.files?.proof_file_image?.[0]?.buffer || null;
+    const images = req.files?.images?.[0]?.buffer || null;
 
     await client.query("BEGIN");
 
     console.log("📦 Inserting property_care_bookings...");
     const propertyCareInsertQuery = `
-    INSERT INTO property_care_bookings (
-      user_id,
-      first_name,
-      last_name,
-      phone,
-      email,
-      address,
-      document_type,
-      document_path,
-      property_type,
-      survey_no,
-      property_status,
-      property_size,
-      property_location,
-      guardian_name,
-      guardian_phone,
-      proof_file_path,
-      images
-    ) VALUES (
-      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
-    ) RETURNING property_care_id`;
+      INSERT INTO property_care_bookings (
+        user_id,
+        first_name,
+        last_name,
+        phone,
+        email,
+        address,
+        document_type,
+        document_image,
+        property_type,
+        survey_no,
+        property_status,
+        property_size,
+        property_location,
+        guardian_name,
+        guardian_phone,
+        proof_file_image,
+        images
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8::BYTEA[], $9, $10, $11, $12, $13, $14, $15, $16::BYTEA[], $17
+      ) RETURNING property_care_id
+    `;
 
     const propertyCareResult = await client.query(propertyCareInsertQuery, [
       user_id,
@@ -65,7 +67,7 @@ const createPropertyCareBookingWithServiceRequest = async (req, res) => {
       email,
       address,
       document_type,
-      document_path,
+      documentImage ? [documentImage] : [],
       property_type,
       survey_no,
       property_status,
@@ -73,8 +75,8 @@ const createPropertyCareBookingWithServiceRequest = async (req, res) => {
       property_location,
       guardian_name,
       guardian_phone,
-      proof_file_path,
-      imageFile ? imageFile.buffer : null,
+      proofFileImage ? [proofFileImage] : [],
+      images,
     ]);
 
     if (propertyCareResult.rowCount === 0) {

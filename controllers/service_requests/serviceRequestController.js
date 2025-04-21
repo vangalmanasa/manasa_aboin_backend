@@ -52,7 +52,7 @@ const getAllServiceRequests = async (req, res) => {
             AND sr.service_reference_id::INTEGER = hb.hospital_service_id
           LEFT JOIN parent pt
             ON hb.parent_id = pt.parent_id
-          WHERE sr.user_id = $1
+          WHERE sr.user_id = $1  AND sr.service_name = 'hospital_service'
         `;
 
     const result = await pool.query(query, [userId]);
@@ -60,6 +60,39 @@ const getAllServiceRequests = async (req, res) => {
     res.json({ success: true, data: result.rows });
   } catch (err) {
     console.error("❌ Error in getAllServiceRequests:", err.message);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const getAllPropertyCareServiceRequests = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    console.log(
+      "🏡 Fetching all property care service requests for user:",
+      userId
+    );
+
+    const query = `
+      SELECT 
+        sr.*, 
+        pcb.*
+      FROM service_requests sr
+      LEFT JOIN property_care_bookings pcb
+        ON sr.service_name = 'property_care_service'
+        AND sr.service_reference_id::INTEGER = pcb.property_care_id
+      WHERE sr.user_id = $1
+        AND sr.service_name = 'property_care_service'
+    `;
+
+    const result = await pool.query(query, [userId]);
+    console.log("🚀 Result of property care service requests:", result.rows);
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    console.error(
+      "❌ Error in getAllPropertyCareServiceRequests:",
+      err.message
+    );
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
@@ -89,5 +122,6 @@ const deleteServiceRequest = async (req, res) => {
 module.exports = {
   createServiceRequest,
   getAllServiceRequests,
+  getAllPropertyCareServiceRequests,
   deleteServiceRequest,
 };
