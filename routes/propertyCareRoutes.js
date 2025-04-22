@@ -9,7 +9,9 @@ const {
 } = require("../controllers/property_care/property_care_booking");
 
 const router = express.Router();
-const upload = multer();
+const upload = multer({
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB file size limit
+});
 
 router.post(
   "/property-care-booking",

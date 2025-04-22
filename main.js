@@ -1,5 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
 
@@ -13,10 +12,14 @@ const propertyCareRoutes = require("./routes/propertyCareRoutes");
 
 const app = express();
 
+// Middleware setup
 app.use(cors());
-app.use(express.json());
-app.use(bodyParser.json());
 
+// Increase the size limit for JSON and URL-encoded requests
+app.use(express.json({ limit: "10mb" })); // Increase JSON body limit to 10MB
+app.use(express.urlencoded({ limit: "10mb", extended: true })); // Increase URL-encoded body limit to 10MB
+
+// Routes
 app.use("/admin", adminRoutes);
 app.use("/user", userRoutes);
 app.use("/api", citiesRoutes);
