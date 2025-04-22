@@ -22,6 +22,10 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
       cab_type,
       needs_assistant,
       claiming_insurance,
+      droplatitude,
+      droplongitude,
+      pickuplatitude,
+      pickuplongitude,
 
       // Razorpay payment data
       razorpay_payment_id,
@@ -56,10 +60,14 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
           cab_type,
           needs_assistant,
           claiming_insurance,
+          droplatitude,
+          droplongitude,
+          pickuplatitude,
+          pickuplongitude,
           images
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7,
-          $8, $9, $10, $11, $12
+          $8, $9, $10, $11, $12,$13, $14, $15, $16
         ) RETURNING hospital_service_id
       `;
 
@@ -75,6 +83,10 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
       cab_type,
       needs_assistant,
       claiming_insurance,
+      droplatitude,
+      droplongitude,
+      pickuplatitude,
+      pickuplongitude,
       imageFile ? imageFile.buffer : null,
     ]);
 
