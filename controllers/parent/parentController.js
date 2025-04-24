@@ -191,9 +191,37 @@ const updateParent = async (req, res) => {
   }
 };
 
+const getAllParents = async (req, res) => {
+  try {
+    const client = await pool.connect();
+    try {
+      const query = `
+        SELECT 
+          parent_id, name, phone_number, date_of_birth, gender,
+          relation, home_location,
+          encode(image, 'base64') as image,
+          user_id
+        FROM parent
+      `;
+      const result = await client.query(query);
+
+      return res.status(200).json({
+        success: true,
+        parents: result.rows,
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error("Error in getAllParents:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 module.exports = {
   createFamilyMember,
   getParentsByUser,
+  getAllParents,
   deleteParent,
   updateParent,
 };

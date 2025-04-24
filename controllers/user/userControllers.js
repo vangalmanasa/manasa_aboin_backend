@@ -190,6 +190,22 @@ const saveUserDetails = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query(`SELECT * FROM "user"`);
+    client.release();
+    console.log("All users:", result.rows);
+    return res.status(200).json({
+      success: true,
+      users: result.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching all users:", error.message);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 const getUserProfile = async (req, res) => {
   const { idToken } = req.body;
 
@@ -236,6 +252,7 @@ const getUserProfile = async (req, res) => {
 module.exports = {
   verifyUser,
   saveUserDetails,
+  getAllUsers,
   checkUserDetails,
   getUserProfile,
 };
