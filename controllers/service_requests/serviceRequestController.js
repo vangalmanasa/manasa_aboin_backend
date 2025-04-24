@@ -97,6 +97,67 @@ const getAllPropertyCareServiceRequests = async (req, res) => {
   }
 };
 
+const getAllhelperServiceRequests = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    console.log(
+      "🏡 Fetching all property care service requests for user:",
+      userId
+    );
+
+    const query = `
+      SELECT 
+        sr.*, 
+        hsb.*
+      FROM service_requests sr
+      LEFT JOIN helper_service_bookings hsb
+        ON sr.service_name = 'helper_service'
+        AND sr.service_reference_id::INTEGER = hsb.helper_service_id
+      WHERE sr.user_id = $1
+        AND sr.service_name = 'helper_service'
+    `;
+
+    const result = await pool.query(query, [userId]);
+    console.log("🚀 Result of helper service requests:", result.rows);
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    console.error(
+      "❌ Error in getAllPropertyCareServiceRequests:",
+      err.message
+    );
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const getAllSpecialRequestServiceRequests = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const query = `
+      SELECT 
+        sr.*, 
+        srsb.*
+      FROM service_requests sr
+      LEFT JOIN special_request_service_bookings srsb
+        ON sr.service_name = 'special_requests'
+        AND sr.service_reference_id::INTEGER = srsb.special_request_service_id
+      WHERE sr.user_id = $1
+        AND sr.service_name = 'special_requests'
+    `;
+
+    const result = await pool.query(query, [userId]);
+    console.log("🚀 Result of helper special requests:", result.rows);
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    console.error(
+      "❌ Error in getAllSpecialRequestServiceRequests:",
+      err.message
+    );
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
 // Delete a service request
 const deleteServiceRequest = async (req, res) => {
   try {
@@ -123,5 +184,7 @@ module.exports = {
   createServiceRequest,
   getAllServiceRequests,
   getAllPropertyCareServiceRequests,
+  getAllhelperServiceRequests,
+  getAllSpecialRequestServiceRequests,
   deleteServiceRequest,
 };

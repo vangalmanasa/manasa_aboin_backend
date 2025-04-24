@@ -9,7 +9,8 @@ const adminRoutes = require("./routes/adminRoutes");
 const hospitalServiceRoutes = require("./routes/hospitalServiceRoutes");
 const serviceRequestRoutes = require("./routes/serviceRequestsRoutes");
 const propertyCareRoutes = require("./routes/propertyCareRoutes");
-
+const helperServiceRoutes = require("./routes/helperServiceRoutes");
+const specialRequestsServiceRoutes = require("./routes/specialRequestsRoutes");
 const app = express();
 
 // Middleware setup
@@ -26,6 +27,8 @@ app.use("/api", citiesRoutes);
 app.use("/parent", parentRoutes);
 app.use("/hospital_service", hospitalServiceRoutes);
 app.use("/property_care", propertyCareRoutes);
+app.use("/helper-service", helperServiceRoutes);
+app.use("/special-request-service", specialRequestsServiceRoutes);
 app.use("/service", serviceRequestRoutes);
 
 // Start Server
