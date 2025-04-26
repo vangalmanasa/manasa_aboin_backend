@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+
 require("dotenv").config();
 
 const userRoutes = require("./routes/userRoutes");
@@ -19,12 +20,10 @@ const realestateAssistantRoutes = require("./routes/realstateAssistantsRoutes");
 
 const app = express();
 
-// Middleware setup
 app.use(cors());
 
-// Increase the size limit for JSON and URL-encoded requests
-app.use(express.json({ limit: "10mb" })); // Increase JSON body limit to 10MB
-app.use(express.urlencoded({ limit: "10mb", extended: true })); // Increase URL-encoded body limit to 10MB
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Routes
 app.use("/admin", adminRoutes);
@@ -41,8 +40,7 @@ app.use("/helper", helperRoutes);
 app.use("/personal-assistant", personalAssistantRoutes);
 app.use("/realstate-assistant", realestateAssistantRoutes);
 
-// Start Server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
