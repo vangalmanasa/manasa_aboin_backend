@@ -69,27 +69,55 @@ const getAllHospitalServiceRequestsForAllUsers = async (req, res) => {
     console.log("📨 Fetching all hospital service requests for all users");
 
     const query = `
-      SELECT 
-        sr.request_id,
-        sr.user_id,
-        sr.service_name,
-        sr.service_reference_id,
-        sr.payment_status,
-        hb.hospital_service_id,
-        pt.parent_id,
+      SELECT
+        u.user_id,
         u.first_name AS user_first_name,
         u.last_name AS user_last_name,
+        u.gender AS user_gender,
+        u.occupation AS user_occupation,
+        u.location AS user_location,
         u.email AS user_email,
-        hb.booking_date AS hospital_booking_date
-      FROM service_requests sr
-      LEFT JOIN hospital_service_bookings hb
-        ON sr.service_name = 'hospital_service'
-        AND sr.service_reference_id::INTEGER = hb.hospital_service_id
-      LEFT JOIN parent pt
-        ON hb.parent_id = pt.parent_id
-      LEFT JOIN user u  
-        ON sr.user_id = 47qQjcmwXTgxfZkJ7cti8PuxjUA3  
-      WHERE sr.service_name = 'hospital_service'
+        u.date_of_birth AS user_date_of_birth,
+        u.phone_number AS user_phone_number,
+        u.user_image,
+
+        p.parent_id,
+        p.name AS parent_name,
+        p.phone_number AS parent_phone_number,
+        p.date_of_birth AS parent_date_of_birth,
+        p.gender AS parent_gender,
+        p.relation AS parent_relation,
+        p.home_location AS parent_home_location,
+        p.image AS parent_image,
+
+        hsb.hospital_service_id,
+        hsb.hospital_name,
+        hsb.hospital_location,
+        hsb.purpose,
+        hsb.needs_assistant,
+        hsb.pickup_date,
+        hsb.pickup_time,
+        hsb.pickup_location,
+        hsb.no_of_persons,
+        hsb.cab_type,
+        hsb.service_hours,
+        hsb.personal_request,
+        hsb.claiming_insurance,
+        hsb.images AS hospital_images,
+        hsb.created_at AS hospital_booking_created_at,
+        hsb.user_id AS booked_by_user_id,
+        hsb.pickuplatitude,
+        hsb.pickuplongitude,
+        hsb.droplatitude,
+        hsb.droplongitude
+      FROM
+        hospital_service_bookings hsb
+      JOIN
+        "user" u ON hsb.user_id = u.user_id
+      JOIN
+        parent p ON hsb.parent_id = p.parent_id
+      WHERE
+        hsb.user_id = p.user_id;
     `;
 
     const result = await pool.query(query);
