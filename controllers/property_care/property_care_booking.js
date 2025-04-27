@@ -1,6 +1,132 @@
 const pool = require("../../config/db");
 const admin = require("../../config/firebase");
 
+const createPropertyCare = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const idToken = String(req.body.user_id);
+    console.log("🔐 Decoding Firebase ID token...");
+
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const user_id = decodedToken.uid;
+    console.log("✅ Firebase user ID:", user_id);
+
+    const {
+      first_name,
+      last_name,
+      phone,
+      email,
+      address,
+      document_type,
+      property_type,
+      survey_no,
+      property_status,
+      property_size,
+      property_location,
+      guardian_name,
+      guardian_phone,
+      propertyLatitude,
+      propertyLongitude,
+    } = req.body;
+
+    console.log("📥 Incoming request body:", req.amount);
+
+    // Handle file uploads
+    const documentImage = req.files?.document_image?.[0]?.buffer || null;
+    const proofFileImage = req.files?.proof_file_image?.[0]?.buffer || null;
+    const images = req.files?.images?.[0]?.buffer || null;
+    console.log("📍 propertyLatitude:", propertyLatitude);
+    console.log("📍 propertyLongitude:", propertyLongitude);
+
+    // Validate Latitude and Longitude
+    const parsedLatitude = isNaN(parseFloat(propertyLatitude))
+      ? null
+      : parseFloat(propertyLatitude);
+    const parsedLongitude = isNaN(parseFloat(propertyLongitude))
+      ? null
+      : parseFloat(propertyLongitude);
+
+    console.log("📍 Validated Latitude:", parsedLatitude);
+    console.log("📍 Validated Longitude:", parsedLongitude);
+
+    await client.query("BEGIN");
+
+    console.log("📦 Inserting property_care_bookings...");
+    const propertyCareInsertQuery = `
+          INSERT INTO property_care_bookings (
+            user_id,
+            first_name,
+            last_name,
+            phone,
+            email,
+            address,
+            document_type,
+            document_image,
+            property_type,
+            survey_no,
+            property_status,
+            property_size,
+            property_location,
+            guardian_name,
+            guardian_phone,
+            propertyLatitude,
+            propertyLongitude,
+            proof_file_image,
+            images
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8::BYTEA[], $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::BYTEA[], $19::BYTEA
+          ) RETURNING property_care_id
+        `;
+
+    const propertyCareResult = await client.query(propertyCareInsertQuery, [
+      user_id,
+      first_name,
+      last_name,
+      phone,
+      email,
+      address,
+      document_type,
+      documentImage ? [documentImage] : [],
+      property_type,
+      survey_no,
+      property_status,
+      property_size,
+      property_location,
+      guardian_name,
+      guardian_phone,
+      propertyLatitude,
+      propertyLongitude,
+      proofFileImage ? [proofFileImage] : [],
+      images,
+    ]);
+
+    if (propertyCareResult.rowCount === 0) {
+      throw new Error("Failed to insert property care booking.");
+    }
+
+    const propertyCareId = propertyCareResult.rows[0].property_care_id;
+    console.log("✅ Property care ID:", propertyCareId);
+
+    await client.query("COMMIT");
+
+    console.log("✅ Transaction committed successfully.");
+    res.status(201).json({
+      success: true,
+      message: "Property care booking recorded successfully.",
+      property_care_id: propertyCareId,
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("❌ Error in createPropertyCareBooking:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "Internal Server Error",
+    });
+  } finally {
+    client.release();
+  }
+};
+
 const createPropertyCareBookingWithServiceRequest = async (req, res) => {
   const client = await pool.connect();
   try {
@@ -311,6 +437,7 @@ const deletePropertyCareBooking = async (req, res) => {
 
 module.exports = {
   createPropertyCareBookingWithServiceRequest,
+  createPropertyCare,
   getPropertyCareBookingById,
   getPropertyCareBookingByUserId,
   updatePropertyCareBooking,
