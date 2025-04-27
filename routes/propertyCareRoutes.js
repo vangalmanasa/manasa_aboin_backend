@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const {
+  createPropertyCare,
   createPropertyCareBookingWithServiceRequest,
   getPropertyCareBookingById,
   getPropertyCareBookingByUserId,
@@ -18,6 +19,8 @@ router.post(
   upload.array("proofFile"), // Assuming proofFile is uploaded as an array (you can adjust according to your use case)
   createPropertyCareBookingWithServiceRequest
 );
+
+router.post("/add-property", upload.array("proofFile"), createPropertyCare);
 
 router.get("/property-care-booking/:id", getPropertyCareBookingById);
 
