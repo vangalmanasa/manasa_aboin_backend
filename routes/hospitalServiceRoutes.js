@@ -8,7 +8,9 @@ const {
 } = require("../controllers/hospital_service/hospital_service_controller");
 
 const router = express.Router();
-const upload = multer();
+const upload = multer({
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB file size limit
+});
 
 router.post(
   "/hospital-service",
