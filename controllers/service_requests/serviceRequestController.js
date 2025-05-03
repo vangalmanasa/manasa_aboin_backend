@@ -193,6 +193,36 @@ const getAllPropertyCareServiceRequests = async (req, res) => {
   }
 };
 
+// const getAllHelperServiceRequestsForAllUsers = async (req, res) => {
+//   try {
+//     console.log("🧹 Fetching all helper service requests for all users");
+
+//     const query = `
+//       SELECT
+//         sr.*,
+//         u.first_name, u.last_name, u.email, u.phone_number, u.gender,
+//         hsb.*
+//       FROM service_requests sr
+//       JOIN "user" u ON sr.user_id = u.user_id
+//       JOIN helper_service_bookings hsb
+//         ON sr.service_name = 'helper_service'
+//         AND sr.service_reference_id::INT = hsb.helper_service_id
+//       WHERE sr.service_name = 'helper_service'
+//     `;
+
+//     const result = await pool.query(query);
+//     console.log("✅ Helper service requests result:", result.rows);
+
+//     res.json({ success: true, data: result.rows });
+//   } catch (err) {
+//     console.error(
+//       "❌ Error in getAllHelperServiceRequestsForAllUsers:",
+//       err.message
+//     );
+//     res.status(500).json({ success: false, error: "Internal Server Error" });
+//   }
+// };
+
 const getAllhelperServiceRequests = async (req, res) => {
   try {
     const { userId } = req.params;
