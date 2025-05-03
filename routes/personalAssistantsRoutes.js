@@ -6,6 +6,7 @@ const {
   updatePersonalAssistant,
   createPersonalAssistant,
   deletePersonalAssistant,
+  getFreePersonalAssistants,
 } = require("../controllers/personal_assistant/personalAssistantController");
 
 const router = express.Router();
@@ -16,7 +17,9 @@ router.post(
   createPersonalAssistant
 );
 
-router.get("/personal-assistant/:id", getPersonalAssistantById);
+router.get("/free-personal-assistants", getFreePersonalAssistants);
+
+router.get("/get-personal-assistant-by-id/:id", getPersonalAssistantById);
 
 router.put(
   "/personal-assistant/:id",

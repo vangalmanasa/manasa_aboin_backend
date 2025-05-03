@@ -65,6 +65,7 @@ const createDriver = async (req, res) => {
 // Get driver details by ID
 const getDriverById = async (req, res) => {
   try {
+    console.log("Fetching driver by ID...");
     const { id } = req.params;
     const result = await pool.query(`SELECT * FROM driver WHERE id = $1`, [id]);
 
@@ -147,9 +148,22 @@ const deleteDriver = async (req, res) => {
   }
 };
 
+const getFreeDrivers = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, first_name, last_name FROM driver WHERE current_status = 'free'`
+    );
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error("❌ Error in getFreeDrivers:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 module.exports = {
   createDriver,
   getDriverById,
   updateDriver,
   deleteDriver,
+  getFreeDrivers,
 };

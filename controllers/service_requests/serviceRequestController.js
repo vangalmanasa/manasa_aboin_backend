@@ -133,6 +133,33 @@ const getAllHospitalServiceRequestsForAllUsers = async (req, res) => {
   }
 };
 
+const getAllPropertyCareServiceRequestsForAllUsers = async (req, res) => {
+  try {
+    console.log("🏡 Fetching all property care service requests for all users");
+
+    const query = `
+      SELECT *
+      FROM service_requests sr
+      JOIN "user" u ON sr.user_id = u.user_id
+      JOIN property_care_bookings pcb 
+        ON sr.service_name = 'property_care_service'
+        AND sr.service_reference_id::INT = pcb.property_care_id
+      WHERE sr.service_name = 'property_care_service'
+    `;
+
+    const result = await pool.query(query);
+    console.log("✅ Property care service requests result:", result.rows);
+
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    console.error(
+      "❌ Error in getAllPropertyCareServiceRequestsForAllUsers:",
+      err.message
+    );
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
 const getAllPropertyCareServiceRequests = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -317,4 +344,5 @@ module.exports = {
   deleteServiceRequest,
   getAllCombinedServiceRequests,
   getAllHospitalServiceRequestsForAllUsers,
+  getAllPropertyCareServiceRequestsForAllUsers,
 };

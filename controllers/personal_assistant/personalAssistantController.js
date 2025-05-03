@@ -60,6 +60,7 @@ const createPersonalAssistant = async (req, res) => {
 const getPersonalAssistantById = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("Fetching personal assistant by ID:", id);
     const result = await pool.query(
       `SELECT * FROM personal_assistants WHERE personal_assistant_id = $1`,
       [id]
@@ -146,9 +147,23 @@ const deletePersonalAssistant = async (req, res) => {
   }
 };
 
+// GET /admin/free-personal-assistants
+const getFreePersonalAssistants = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT personal_assistant_id, full_name FROM personal_assistants WHERE current_status = 'free'`
+    );
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error("❌ Error in getFreePersonalAssistants:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 module.exports = {
   createPersonalAssistant,
   getPersonalAssistantById,
   updatePersonalAssistant,
   deletePersonalAssistant,
+  getFreePersonalAssistants,
 };

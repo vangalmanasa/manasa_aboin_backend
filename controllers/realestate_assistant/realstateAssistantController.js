@@ -140,9 +140,22 @@ const deleteRealEstateAgent = async (req, res) => {
   }
 };
 
+const getAllRealEstateAgents = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT agent_id, name FROM real_estate_agents ORDER BY name ASC`
+    );
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    console.error("Error in getAllRealEstateAgents:", err.message);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   createRealEstateAgent,
   getRealEstateAgentById,
   updateRealEstateAgent,
   deleteRealEstateAgent,
+  getAllRealEstateAgents,
 };

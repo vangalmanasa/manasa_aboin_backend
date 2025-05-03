@@ -7,6 +7,7 @@ const {
   getRealEstateAgentById,
   updateRealEstateAgent,
   deleteRealEstateAgent,
+  getAllRealEstateAgents,
 } = require("../controllers/realestate_assistant/realstateAssistantController");
 
 const router = express.Router();
@@ -17,7 +18,9 @@ router.post(
   createRealEstateAgent
 );
 
-router.get("/real-estate-agent/:id", getRealEstateAgentById);
+router.get("/get-real-estate-agent/:id", getRealEstateAgentById);
+
+router.get("/get-all-real-estate-agent", getAllRealEstateAgents);
 router.put(
   "/real-estate-agent/:id",
   upload.single("image"),
