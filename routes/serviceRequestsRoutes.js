@@ -8,6 +8,8 @@ const {
   getAllCombinedServiceRequests,
   getAllHospitalServiceRequestsForAllUsers,
   getAllPropertyCareServiceRequestsForAllUsers,
+  getAllHelperServiceRequestsForAllUsers,
+  getAllSpecialRequestServiceRequestsForAllUsers,
 } = require("../controllers/service_requests/serviceRequestController");
 
 const router = express.Router();
@@ -35,6 +37,16 @@ router.get(
 router.get(
   "/service-requests-for-special-requests-service/:userId",
   getAllSpecialRequestServiceRequests
+);
+
+router.get(
+  "/get-all-service-requests-for-helper-service",
+  getAllHelperServiceRequestsForAllUsers
+);
+
+router.get(
+  "/get-all-service-requests-for-special-requests-service",
+  getAllSpecialRequestServiceRequestsForAllUsers
 );
 
 router.get(

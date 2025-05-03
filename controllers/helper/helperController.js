@@ -132,9 +132,23 @@ const deleteHelper = async (req, res) => {
   }
 };
 
+const getFreeHelpers = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT helper_id, name FROM helpers WHERE current_status = 'free'`
+    );
+
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error("❌ Error fetching free helpers:", error.message);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   createHelper,
   getHelperById,
   updateHelper,
   deleteHelper,
+  getFreeHelpers,
 };
