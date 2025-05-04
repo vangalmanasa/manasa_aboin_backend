@@ -1,12 +1,10 @@
 const pool = require("../../config/db");
-const admin = require("../../config/firebase");
 
 const createHelperServiceBookingWithRequest = async (req, res) => {
   const client = await pool.connect();
   try {
     const idToken = String(req.body.user_id);
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const user_id = decodedToken.uid;
+    const user_id = idToken;
 
     const {
       personal_request,

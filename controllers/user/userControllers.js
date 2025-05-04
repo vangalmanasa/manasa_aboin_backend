@@ -34,11 +34,6 @@ const verifyUser = async (req, res) => {
         console.log(`ℹ️ User already exists: ${user_id}`);
       }
 
-      // 🔍 Query all users
-      const allUsers = await client.query('SELECT * FROM "user"');
-      console.log("📋 All users in DB:");
-      console.table(allUsers.rows); // Neatly formatted output
-
       return res.status(200).json({
         success: true,
         user_id,
@@ -195,7 +190,6 @@ const getAllUsers = async (req, res) => {
     const client = await pool.connect();
     const result = await client.query(`SELECT * FROM "user"`);
     client.release();
-    console.log("All users:", result.rows);
     return res.status(200).json({
       success: true,
       users: result.rows,

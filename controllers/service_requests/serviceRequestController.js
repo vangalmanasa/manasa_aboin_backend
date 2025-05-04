@@ -56,7 +56,6 @@ const getAllServiceRequests = async (req, res) => {
         `;
 
     const result = await pool.query(query, [userId]);
-    console.log(result.rows);
     res.json({ success: true, data: result.rows });
   } catch (err) {
     console.error("❌ Error in getAllServiceRequests:", err.message);
@@ -121,7 +120,6 @@ const getAllHospitalServiceRequestsForAllUsers = async (req, res) => {
     `;
 
     const result = await pool.query(query);
-    console.log(result.rows);
 
     res.json({ success: true, data: result.rows });
   } catch (err) {

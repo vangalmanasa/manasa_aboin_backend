@@ -56,7 +56,6 @@ const signup = async (req, res) => {
     const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-    console.log(res, token);
     res.status(201).json({ token });
   } catch (error) {
     console.error(error);

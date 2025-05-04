@@ -29,14 +29,10 @@ const createPropertyCare = async (req, res) => {
       propertyLongitude,
     } = req.body;
 
-    console.log("📥 Incoming request body:", req.amount);
-
     // Handle file uploads
     const documentImage = req.files?.document_image?.[0]?.buffer || null;
     const proofFileImage = req.files?.proof_file_image?.[0]?.buffer || null;
     const images = req.files?.images?.[0]?.buffer || null;
-    console.log("📍 propertyLatitude:", propertyLatitude);
-    console.log("📍 propertyLongitude:", propertyLongitude);
 
     // Validate Latitude and Longitude
     const parsedLatitude = isNaN(parseFloat(propertyLatitude))
@@ -45,9 +41,6 @@ const createPropertyCare = async (req, res) => {
     const parsedLongitude = isNaN(parseFloat(propertyLongitude))
       ? null
       : parseFloat(propertyLongitude);
-
-    console.log("📍 Validated Latitude:", parsedLatitude);
-    console.log("📍 Validated Longitude:", parsedLongitude);
 
     await client.query("BEGIN");
 
@@ -133,8 +126,7 @@ const createPropertyCareBookingWithServiceRequest = async (req, res) => {
     const idToken = String(req.body.user_id);
     console.log("🔐 Decoding Firebase ID token...");
 
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const user_id = decodedToken.uid;
+    const user_id = idToken;
     console.log("✅ Firebase user ID:", user_id);
 
     const {
@@ -163,8 +155,6 @@ const createPropertyCareBookingWithServiceRequest = async (req, res) => {
       payment_method,
     } = req.body;
 
-    console.log("📥 Incoming request body:", req.amount);
-
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount)) {
       throw new Error("Amount is missing or invalid.");
@@ -174,8 +164,6 @@ const createPropertyCareBookingWithServiceRequest = async (req, res) => {
     const documentImage = req.files?.document_image?.[0]?.buffer || null;
     const proofFileImage = req.files?.proof_file_image?.[0]?.buffer || null;
     const images = req.files?.images?.[0]?.buffer || null;
-    console.log("📍 propertyLatitude:", propertyLatitude);
-    console.log("📍 propertyLongitude:", propertyLongitude);
 
     // Validate Latitude and Longitude
     const parsedLatitude = isNaN(parseFloat(propertyLatitude))
@@ -184,9 +172,6 @@ const createPropertyCareBookingWithServiceRequest = async (req, res) => {
     const parsedLongitude = isNaN(parseFloat(propertyLongitude))
       ? null
       : parseFloat(propertyLongitude);
-
-    console.log("📍 Validated Latitude:", parsedLatitude);
-    console.log("📍 Validated Longitude:", parsedLongitude);
 
     await client.query("BEGIN");
 
