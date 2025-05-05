@@ -50,6 +50,35 @@ const verifyUser = async (req, res) => {
   }
 };
 
+const checkParentPhoneNumber = async (req, res) => {
+  const { phoneNumber } = req.body;
+
+  if (!phoneNumber) {
+    return res
+      .status(400)
+      .json({ success: false, error: "Missing phoneNumber" });
+  }
+
+  try {
+    const client = await pool.connect();
+    try {
+      const result = await client.query(
+        `SELECT 1 FROM parent WHERE phone_number = $1 LIMIT 1`,
+        [phoneNumber]
+      );
+
+      const exists = result.rows.length > 0;
+
+      return res.status(200).json({ success: true, exists });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error("Error in checkParentPhoneNumber:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 const checkUserDetails = async (req, res) => {
   const { idToken } = req.body;
 
@@ -246,4 +275,5 @@ module.exports = {
   getAllUsers,
   checkUserDetails,
   getUserProfile,
+  checkParentPhoneNumber,
 };
