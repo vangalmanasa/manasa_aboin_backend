@@ -100,14 +100,13 @@ const saveUserDetails = async (req, res) => {
     date_of_birth,
   } = req.body;
 
-  const user_image = req.file?.buffer; // 📸 Get image buffer
+  const user_image = req.file?.buffer;
 
   if (!idToken) {
     return res.status(400).json({ success: false, error: "Missing idToken" });
   }
 
   try {
-    // const decodedToken = await admin.auth().verifyIdToken(idToken);
     const user_id = idToken;
 
     const fields = [];
