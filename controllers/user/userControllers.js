@@ -53,7 +53,10 @@ const verifyUser = async (req, res) => {
 const checkParentPhoneNumber = async (req, res) => {
   const { phoneNumber } = req.body;
 
+  console.log("Received phone number:", phoneNumber); // Log input
+
   if (!phoneNumber) {
+    console.warn("Missing phoneNumber in request body");
     return res
       .status(400)
       .json({ success: false, error: "Missing phoneNumber" });
@@ -68,6 +71,9 @@ const checkParentPhoneNumber = async (req, res) => {
       );
 
       const exists = result.rows.length > 0;
+
+      console.log("Query result rows:", result.rows); // Log raw result
+      console.log("Does parent exist?", exists); // Log boolean
 
       return res.status(200).json({ success: true, exists });
     } finally {
