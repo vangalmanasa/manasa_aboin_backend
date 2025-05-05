@@ -77,8 +77,7 @@ const getParentsByUser = async (req, res) => {
 
   try {
     // Verify and decode the Firebase user ID token
-    const decoded = await admin.auth().verifyIdToken(idToken);
-    const user_id = decoded.uid;
+    const user_id = idToken;
 
     const client = await pool.connect();
     try {
