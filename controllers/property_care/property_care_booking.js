@@ -1,5 +1,4 @@
 const pool = require("../../config/db");
-const admin = require("../../config/firebase");
 
 const createPropertyCare = async (req, res) => {
   const client = await pool.connect();
@@ -7,8 +6,7 @@ const createPropertyCare = async (req, res) => {
     const idToken = String(req.body.user_id);
     console.log("🔐 Decoding Firebase ID token...");
 
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const user_id = decodedToken.uid;
+    const user_id = idToken;
     console.log("✅ Firebase user ID:", user_id);
 
     const {

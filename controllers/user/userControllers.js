@@ -1,4 +1,3 @@
-const admin = require("../../config/firebase");
 const pool = require("../../config/db");
 
 // Verify Firebase ID Token and store user (signup/login)
@@ -13,8 +12,8 @@ const verifyUser = async (req, res) => {
   }
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const user_id = decodedToken.uid;
+    // const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const user_id = idToken;
 
     const client = await pool.connect();
     try {
@@ -59,8 +58,8 @@ const checkUserDetails = async (req, res) => {
   }
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const user_id = decodedToken.uid;
+    // const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const user_id = idToken;
 
     const client = await pool.connect();
     try {
@@ -108,8 +107,8 @@ const saveUserDetails = async (req, res) => {
   }
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const user_id = decodedToken.uid;
+    // const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const user_id = idToken;
 
     const fields = [];
     const values = [];
@@ -208,8 +207,7 @@ const getUserProfile = async (req, res) => {
   }
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const user_id = decodedToken.uid;
+    const user_id = idToken;
 
     const client = await pool.connect();
     try {
