@@ -8,6 +8,7 @@ const {
   getAllUsers,
   getUserProfile,
   checkParentPhoneNumber,
+  deleteUser,
 } = require("../controllers/user/userControllers");
 
 const router = express.Router();
@@ -18,5 +19,6 @@ router.post("/details", upload.single("user_image"), saveUserDetails);
 router.post("/check-details", checkUserDetails);
 router.post("/get-profile", getUserProfile);
 router.get("/all", getAllUsers);
+router.post("/delete-user", deleteUser);
 
 module.exports = router;

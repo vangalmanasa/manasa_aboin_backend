@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/service-cities", (req, res) => {
-  const cities = ["Hyderabad", "Vijayawada"];
+  const cities = ["Hyderabad"];
   res.json({ cities });
 });
 

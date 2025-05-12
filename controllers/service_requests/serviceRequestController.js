@@ -40,20 +40,21 @@ const getAllServiceRequests = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    console.log("📨 Fetching all service requests for user:", userId);
+    console.log("📨 Fetching all hospital service requests for user:", userId);
     const query = `
-          SELECT 
-            sr.*, 
-            hb.*, 
-            pt.*
-          FROM service_requests sr
-          LEFT JOIN hospital_service_bookings hb
-            ON sr.service_name = 'hospital_service'
-            AND sr.service_reference_id::INTEGER = hb.hospital_service_id
-          LEFT JOIN parent pt
-            ON hb.parent_id = pt.parent_id
-          WHERE sr.user_id = $1  AND sr.service_name = 'hospital_service'
-        `;
+      SELECT 
+        sr.*, 
+        hb.*, 
+        pt.*
+      FROM service_requests sr
+      LEFT JOIN hospital_service_bookings hb
+        ON sr.service_name = 'hospital_service'
+        AND sr.service_reference_id = hb.hospital_service_id
+      LEFT JOIN parent pt
+        ON hb.parent_id = pt.parent_id
+      WHERE sr.user_id = $1  
+        AND sr.service_name = 'hospital_service'
+    `;
 
     const result = await pool.query(query, [userId]);
     res.json({ success: true, data: result.rows });
@@ -168,19 +169,21 @@ const getAllPropertyCareServiceRequests = async (req, res) => {
     );
 
     const query = `
-      SELECT 
-        sr.*, 
-        pcb.*
-      FROM service_requests sr
-      LEFT JOIN property_care_bookings pcb
-        ON sr.service_name = 'property_care_service'
-        AND sr.service_reference_id::INTEGER = pcb.property_care_id
-      WHERE sr.user_id = $1
-        AND sr.service_name = 'property_care_service'
-    `;
+    SELECT 
+      sr.*, 
+      pcs.*, 
+      p.*
+    FROM service_requests sr
+    LEFT JOIN property_care_service pcs
+      ON sr.service_name = 'property_care_service'
+      AND sr.service_reference_id = pcs.property_care_id
+    LEFT JOIN properties p
+      ON pcs.property_id = p.property_id
+    WHERE sr.user_id = $1
+      AND sr.service_name = 'property_care_service'
+  `;
 
     const result = await pool.query(query, [userId]);
-    console.log("🚀 Result of property care service requests:", result.rows);
     res.json({ success: true, data: result.rows });
   } catch (err) {
     console.error(
@@ -257,25 +260,20 @@ const getAllhelperServiceRequests = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    console.log(
-      "🏡 Fetching all property care service requests for user:",
-      userId
-    );
+    console.log("🏡 Fetching all helper service requests for user:", userId);
 
     const query = `
-      SELECT 
-        sr.*, 
-        hsb.*
-      FROM service_requests sr
-      LEFT JOIN helper_service_bookings hsb
-        ON sr.service_name = 'helper_service'
-        AND sr.service_reference_id::INTEGER = hsb.helper_service_id
-      WHERE sr.user_id = $1
-        AND sr.service_name = 'helper_service'
+     SELECT 
+  sr.*, 
+  hsb.*
+FROM service_requests sr
+LEFT JOIN helper_service_bookings hsb
+  ON sr.service_reference_id = hsb.helper_service_id
+WHERE sr.user_id = $1
+  AND sr.service_name = 'helper_service'
     `;
 
     const result = await pool.query(query, [userId]);
-    console.log("🚀 Result of helper service requests:", result.rows);
     res.json({ success: true, data: result.rows });
   } catch (err) {
     console.error(
@@ -290,20 +288,24 @@ const getAllSpecialRequestServiceRequests = async (req, res) => {
   try {
     const { userId } = req.params;
 
+    console.log(
+      "🏡 Fetching all special request service requests for user:",
+      userId
+    );
+
     const query = `
-      SELECT 
-        sr.*, 
-        srsb.*
-      FROM service_requests sr
-      LEFT JOIN special_request_service_bookings srsb
-        ON sr.service_name = 'special_requests'
-        AND sr.service_reference_id::INTEGER = srsb.special_request_service_id
-      WHERE sr.user_id = $1
-        AND sr.service_name = 'special_requests'
+     SELECT 
+  sr.*, 
+  srsb.*
+FROM service_requests sr
+LEFT JOIN special_request_service_bookings srsb
+  ON sr.service_reference_id = srsb.special_request_service_id
+WHERE sr.user_id = $1
+  AND sr.service_name = 'special_requests';
+
     `;
 
     const result = await pool.query(query, [userId]);
-    console.log("🚀 Result of helper special requests:", result.rows);
     res.json({ success: true, data: result.rows });
   } catch (err) {
     console.error(

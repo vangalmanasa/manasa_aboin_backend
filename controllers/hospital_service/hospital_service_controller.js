@@ -14,8 +14,10 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
       pickup_date,
       pickup_time,
       pickup_location,
+      hospital_name,
       hospital_location,
       no_of_persons,
+      opting_cab_service,
       cab_type,
       needs_assistant,
       claiming_insurance,
@@ -39,6 +41,9 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
       throw new Error("Amount is missing or invalid.");
     }
 
+    const finalCabType =
+      opting_cab_service === "false" || !opting_cab_service ? null : cab_type;
+
     const imageFile = req.file;
 
     await client.query("BEGIN");
@@ -52,8 +57,10 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
           pickup_date,
           pickup_time,
           pickup_location,
+          hospital_name,
           hospital_location,
           no_of_persons,
+          opting_cab_service,
           cab_type,
           needs_assistant,
           claiming_insurance,
@@ -63,8 +70,8 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
           pickuplongitude,
           images
         ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7,
-          $8, $9, $10, $11, $12,$13, $14, $15, $16
+         $1, $2, $3, $4, $5, $6, $7, 
+      $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
         ) RETURNING hospital_service_id
       `;
 
@@ -75,9 +82,11 @@ const createHospitalServiceWithServiceRequest = async (req, res) => {
       pickup_date,
       pickup_time,
       pickup_location,
+      hospital_name,
       hospital_location,
       no_of_persons,
-      cab_type,
+      opting_cab_service,
+      finalCabType,
       needs_assistant,
       claiming_insurance,
       droplatitude,

@@ -42,9 +42,9 @@ const createPropertyCare = async (req, res) => {
 
     await client.query("BEGIN");
 
-    console.log("📦 Inserting property_care_bookings...");
+    console.log("📦 Inserting properties...");
     const propertyCareInsertQuery = `
-          INSERT INTO property_care_bookings (
+          INSERT INTO properties (
             user_id,
             first_name,
             last_name,
@@ -65,8 +65,8 @@ const createPropertyCare = async (req, res) => {
             proof_file_image,
             images
           ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8::BYTEA[], $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::BYTEA[], $19::BYTEA
-          ) RETURNING property_care_id
+            $1, $2, $3, $4, $5, $6, $7, $8::BYTEA, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::BYTEA, $19::BYTEA
+          ) RETURNING property_id
         `;
 
     const propertyCareResult = await client.query(propertyCareInsertQuery, [
@@ -95,20 +95,20 @@ const createPropertyCare = async (req, res) => {
       throw new Error("Failed to insert property care booking.");
     }
 
-    const propertyCareId = propertyCareResult.rows[0].property_care_id;
-    console.log("✅ Property care ID:", propertyCareId);
+    const propertyId = propertyCareResult.rows[0].property_care_id;
+    console.log("✅ Property ID:", propertyId);
 
     await client.query("COMMIT");
 
     console.log("✅ Transaction committed successfully.");
     res.status(201).json({
       success: true,
-      message: "Property care booking recorded successfully.",
-      property_care_id: propertyCareId,
+      message: "Property recorded successfully.",
+      property_id: propertyId,
     });
   } catch (error) {
     await client.query("ROLLBACK");
-    console.error("❌ Error in createPropertyCareBooking:", error);
+    console.error("❌ Error in createProperty:", error);
     res.status(500).json({
       success: false,
       error: error.message || "Internal Server Error",
@@ -128,22 +128,7 @@ const createPropertyCareBookingWithServiceRequest = async (req, res) => {
     console.log("✅ Firebase user ID:", user_id);
 
     const {
-      first_name,
-      last_name,
-      phone,
-      email,
-      address,
-      document_type,
-      property_type,
-      survey_no,
-      property_status,
-      property_size,
-      property_location,
-      guardian_name,
-      guardian_phone,
-      propertyLatitude,
-      propertyLongitude,
-
+      property_id,
       // Razorpay payment data
       razorpay_payment_id,
       razorpay_order_id,
@@ -158,68 +143,21 @@ const createPropertyCareBookingWithServiceRequest = async (req, res) => {
       throw new Error("Amount is missing or invalid.");
     }
 
-    // Handle file uploads
-    const documentImage = req.files?.document_image?.[0]?.buffer || null;
-    const proofFileImage = req.files?.proof_file_image?.[0]?.buffer || null;
-    const images = req.files?.images?.[0]?.buffer || null;
-
-    // Validate Latitude and Longitude
-    const parsedLatitude = isNaN(parseFloat(propertyLatitude))
-      ? null
-      : parseFloat(propertyLatitude);
-    const parsedLongitude = isNaN(parseFloat(propertyLongitude))
-      ? null
-      : parseFloat(propertyLongitude);
-
     await client.query("BEGIN");
 
-    console.log("📦 Inserting property_care_bookings...");
+    console.log("📦 Inserting property_care_service...");
     const propertyCareInsertQuery = `
-        INSERT INTO property_care_bookings (
-          user_id,
-          first_name,
-          last_name,
-          phone,
-          email,
-          address,
-          document_type,
-          document_image,
-          property_type,
-          survey_no,
-          property_status,
-          property_size,
-          property_location,
-          guardian_name,
-          guardian_phone,
-          propertyLatitude,
-          propertyLongitude,
-          proof_file_image,
-          images
-        ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8::BYTEA[], $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::BYTEA[], $19::BYTEA
-        ) RETURNING property_care_id
-      `;
+    INSERT INTO property_care_service (
+      user_id,
+      property_id
+    ) VALUES (
+      $1, $2
+    ) RETURNING property_care_id
+  `;
 
     const propertyCareResult = await client.query(propertyCareInsertQuery, [
       user_id,
-      first_name,
-      last_name,
-      phone,
-      email,
-      address,
-      document_type,
-      documentImage ? [documentImage] : [],
-      property_type,
-      survey_no,
-      property_status,
-      property_size,
-      property_location,
-      guardian_name,
-      guardian_phone,
-      propertyLatitude,
-      propertyLongitude,
-      proofFileImage ? [proofFileImage] : [],
-      images,
+      property_id,
     ]);
 
     if (propertyCareResult.rowCount === 0) {
@@ -299,16 +237,12 @@ const createPropertyCareBookingWithServiceRequest = async (req, res) => {
   }
 };
 
-module.exports = {
-  createPropertyCareBookingWithServiceRequest,
-};
-
 // Get property care service by ID
 const getPropertyCareBookingById = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query(
-      `SELECT * FROM property_care_bookings WHERE property_care_id = $1`,
+      `SELECT * FROM properties WHERE property_id = $1`,
       [id]
     );
 
@@ -327,7 +261,7 @@ const getPropertyCareBookingByUserId = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query(
-      `SELECT * FROM property_care_bookings WHERE user_id = $1`,
+      `SELECT * FROM properties WHERE user_id = $1`,
       [id]
     );
     console.log("🚀 Fetching property care bookings for user:", id);

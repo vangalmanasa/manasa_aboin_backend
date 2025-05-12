@@ -275,6 +275,45 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+// Delete user by user_id
+const deleteUser = async (req, res) => {
+  const { idToken } = req.body;
+
+  console.log("deletion satrred ", idToken);
+  if (!idToken) {
+    return res.status(400).json({ success: false, error: "Missing idToken" });
+  }
+
+  try {
+    const user_id = idToken;
+
+    const client = await pool.connect();
+    try {
+      const result = await client.query(
+        `DELETE FROM "user" WHERE user_id = $1 RETURNING *`,
+        [user_id]
+      );
+
+      if (result.rowCount === 0) {
+        return res
+          .status(404)
+          .json({ success: false, error: "User not found or already deleted" });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+        deletedUser: result.rows[0],
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error("Error in deleteUser:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 module.exports = {
   verifyUser,
   saveUserDetails,
@@ -282,4 +321,5 @@ module.exports = {
   checkUserDetails,
   getUserProfile,
   checkParentPhoneNumber,
+  deleteUser,
 };
