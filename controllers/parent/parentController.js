@@ -11,6 +11,10 @@ const createFamilyMember = async (req, res) => {
     gender,
     relation,
     home_location,
+    door_no,
+    floor_no,
+    apartment_name,
+    landmark,
   } = req.body;
 
   const imageFile = req.file;
@@ -36,9 +40,10 @@ const createFamilyMember = async (req, res) => {
       const insertQuery = `
         INSERT INTO parent (
           parent_id, name, phone_number, date_of_birth, gender,
-          relation, home_location, image, user_id
+          relation, home_location, door_no, floor_no, apartment_name, landmark,
+          image, user_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         RETURNING *`;
 
       const values = [
@@ -49,6 +54,10 @@ const createFamilyMember = async (req, res) => {
         gender || null,
         relation,
         home_location || null,
+        door_no || null,
+        floor_no || null,
+        apartment_name || null,
+        landmark || null,
         imageFile ? imageFile.buffer : null,
         user_id,
       ];
@@ -76,7 +85,6 @@ const getParentsByUser = async (req, res) => {
   }
 
   try {
-    // Verify and decode the Firebase user ID token
     const user_id = idToken;
 
     const client = await pool.connect();
@@ -85,6 +93,7 @@ const getParentsByUser = async (req, res) => {
           SELECT 
             parent_id, name, phone_number, date_of_birth, gender,
             relation, home_location,
+            door_no, floor_no, apartment_name, landmark,
             encode(image, 'base64') as image -- return image as base64
           FROM parent
           WHERE user_id = $1
@@ -135,8 +144,18 @@ const deleteParent = async (req, res) => {
 };
 
 const updateParent = async (req, res) => {
-  const { name, phone_number, date_of_birth, gender, relation, home_location } =
-    req.body;
+  const {
+    name,
+    phone_number,
+    date_of_birth,
+    gender,
+    relation,
+    home_location,
+    door_no,
+    floor_no,
+    apartment_name,
+    landmark,
+  } = req.body;
 
   const { parent_id } = req.params;
   const imageFile = req.file;
@@ -156,8 +175,12 @@ const updateParent = async (req, res) => {
             gender = $4,
             relation = $5,
             home_location = $6,
-            image = COALESCE($7, image)
-          WHERE parent_id = $8
+            door_no = $7,
+            floor_no = $8,
+            apartment_name = $9,
+            landmark = $10,
+            image = COALESCE($11, image)
+          WHERE parent_id = $12
           RETURNING *
         `;
 
@@ -168,6 +191,10 @@ const updateParent = async (req, res) => {
         gender || null,
         relation,
         home_location || null,
+        door_no || null,
+        floor_no || null,
+        apartment_name || null,
+        landmark || null,
         imageFile ? imageFile.buffer : null,
         parent_id,
       ];
